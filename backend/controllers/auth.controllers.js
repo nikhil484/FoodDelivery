@@ -1,12 +1,12 @@
 import User from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import genToken from "../utils/token.js"
-import { response } from "express"
 
-export const signUP = async (req, res) => {
+
+export const signUp = async (req, res) => {
     try {
         const { fullName, email, password, mobileNumber, role } = req.body
-        const user = await User.findOne({ email })
+      let user = await User.findOne({ email })
         if (user) {
             return res
                 .status(400)
@@ -33,7 +33,7 @@ export const signUP = async (req, res) => {
             password: hashedPassword
         })
         const token = await genToken(user._id)
-        response.cookie("token", token, {
+        res.cookie("token", token, {
             secure: false,
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000,
