@@ -59,7 +59,10 @@ function SignIn() {
               onClick={() => setShowPassword(prev => !prev)}>{!showPassword ? <FaRegEye /> : <FaRegEyeSlash />}</button>
           </div>
         </div>
-
+        <div className='text-right mb-4 text-[#ff4d2d] font-medium cursor-pointer' 
+        onClick={()=>navigate("/forgotPassword")}>
+          Forgot Password
+        </div>
 
         {/* Signup button */}
         <button className={`w-full font-semibold py-2 rounded-lg transition duration-200 bg-[#ff4d2d] text-white hover:bg-[#e64323] cursor-pointer`}
