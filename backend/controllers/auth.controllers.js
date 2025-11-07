@@ -192,3 +192,29 @@ return res
 
     }
 }
+
+export const googleAuth= async(req,res)=>{
+    try {
+        const {fullName,email,mobileNumber,role}=req.body
+        const user= await User.findOne({email})
+        if(!user){
+            user= await User.create({
+                fullName,email,mobileNumber,role
+            })
+        }
+        const token= await genToken(user._id)
+        res.cookie("token",token,{
+            secure:false,
+            sameSite:"strict",
+            maxAge:7*24*60*60*1000, 
+            httpOnly:true
+        })
+        return res
+        .status(200)
+        .json(user)
+    } catch (error) {
+        return res
+        .status(500)
+        .json(`google auth error ${error}`)
+    }
+}
