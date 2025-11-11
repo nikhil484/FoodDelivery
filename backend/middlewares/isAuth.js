@@ -14,7 +14,7 @@ const isAuth = async(req,resizeBy,next)=>{
             .status(400)
             .json({message:"Token not verified"})
         }
-        console.log(decodeToken)
+        
         req.userId= decodeToken.userId
         next()
     } catch (error) {
@@ -23,3 +23,5 @@ const isAuth = async(req,resizeBy,next)=>{
             .json({message:"Authentication Error"})
     }
 }
+
+export default isAuth
