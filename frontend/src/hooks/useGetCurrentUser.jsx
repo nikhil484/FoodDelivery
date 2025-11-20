@@ -11,7 +11,8 @@ function useGetCurrentUser() {
             {withCredentials:true})
            dispatch(setUserData(result.data))
     } catch (error) {
-        console.log(error)
+          console.log(error)
+         
     }}
         
      fetchUser()   
