@@ -6,7 +6,9 @@ import { FaUtensils } from "react-icons/fa";
 import axios from 'axios';
 import { serverUrl } from '../App.jsx'
 import { useDispatch } from 'react-redux';
-import { setMyShopData } from '../redux/ownerSlice';
+import { setMyShopData } from '../redux/ownerSlice'
+import { ClipLoader } from 'react-spinners';
+
 
 function CreateEditShop() {
    const navigate = useNavigate()
@@ -18,7 +20,7 @@ function CreateEditShop() {
    const[city,setCity]=useState(myShopData?.city ||currentCity)
    const[frontendImage,setFrontendImage]= useState(myShopData?.image||null)
    const[backendImage,setBackendImage]= useState(null)
-   
+   const[loading,setLoading]=useState(false)
    const dispatch= useDispatch()
    const handleImage=(e)=>{
     const file= e.target.files[0]
@@ -27,21 +29,30 @@ function CreateEditShop() {
 
     const handleSubmit= async(e)=>{
       e.preventDefault()
+      setLoading(true)
       try {
         const formData= new FormData()
         formData.append("name",name)
         formData.append("address",address)
         formData.append("state",state)
         formData.append("city",city)
+
+        if (myShopData?._id) {
+        formData.append("shopId", myShopData._id)
+      }
+        
         if(backendImage){
           formData.append("image",backendImage)
         }
          const result= await axios.post(`${serverUrl}/api/shop/create-edit`,formData,{withCredentials:true})
-        dispatch(setMyShopData(result.data))
-        console.log(result.data)
+        dispatch(setMyShopData(result.data.shop))
+        setLoading(false)
+        // navigate("/")
+         window.location.href = "/owner-dashboard"
         
       } catch (error) {
         console.log(error)
+        setLoading(false)
     }}
   return (
    
@@ -89,8 +100,9 @@ function CreateEditShop() {
               focus:outline-none focus:ring-2 focus:ring-orange-500' onChange={(e)=>setAddress(e.target.value)} value={address}/>
               </div>
               <button className='w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg
-              font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all'>
-                Save
+              font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all'disabled={loading}>
+              {loading?<ClipLoader size={20} color='white'/>:"Save"}
+               
               </button>
            </form>
         </div>

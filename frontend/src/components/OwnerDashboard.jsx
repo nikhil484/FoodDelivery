@@ -46,7 +46,7 @@ function OwnerDashboard() {
         <p className='text-gray-500 mb-4'>{myShopData.address}</p>
        </div>
        </div>
-      {myShopData.items.length==0 &&  
+      {myShopData?.items?.length===0 &&  
         <div className='flex justify-center items-center p-4 sm:p-6'>
           <div className='w-full max-w-md bg-white shadow-lg rounded-2xl 
          p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-300'>
@@ -62,8 +62,8 @@ function OwnerDashboard() {
           </div>
         </div>
         }
-        {myShopData.items.length>0 && <div
-        className='flex flex-col items-center gap-4 w-full max-w-3xl'>
+        {myShopData?.items?.length>0 && <div
+        className='flex flex-col items-center gap-4 w-full max-w-3xl' >
           {myShopData.items.map((item,index)=>(<OwnerItemCard data={item} key={index}/>))}</div>}
       </div>
       }

@@ -7,6 +7,7 @@ import axios from 'axios';
 import { serverUrl } from '../App.jsx'
 import { useDispatch } from 'react-redux';
 import { setMyShopData } from '../redux/ownerSlice';
+import { ClipLoader } from 'react-spinners';
 
 function EditItem() {
    const navigate = useNavigate()
@@ -52,11 +53,13 @@ function EditItem() {
         if(backendImage){
           formData.append("image",backendImage)
         }
-         const result= await axios.post(`${serverUrl}/api/item/add-item`,formData,{withCredentials:true})
+         const result= await axios.post(`${serverUrl}/api/item/edit-item/${itemId}`,formData,{withCredentials:true})
         dispatch(setMyShopData(result.data))
         setLoading(false)
-        navigate("/")
-        
+        // navigate("/")
+         window.location.href = "/owner-dashboard"
+       
+    
       } catch (error) {
         console.log(error)
         setLoading(false)
@@ -65,15 +68,16 @@ function EditItem() {
     useEffect(()=>{
        const handleGetItemById= async()=>{
         try {
-            const result= await axios.get(`${serverUrl}/api/item/get-by-id${itemId}`,{withCredentials:true})
+            const result= await axios.get(`${serverUrl}/api/item/get-by-id/${itemId}`,{withCredentials:true})
             setCurrentItem(result.data)
 
         } catch (error) {
             console.log(error)
         }
-        handleGetItemById()
+        
 
        }
+       handleGetItemById()
     },[itemId])
 
     useEffect(()=>{
@@ -89,7 +93,7 @@ function EditItem() {
    
     <div className='flex justify-center flex-col items-center p-6 bg-gradient-to-br 
     from-orange-50 relative to-white min-h-screen'>
-        <div className='absolute top-[20px] left-[20px] z-[10] mb-[10px]' onClick={() => navigate("/")}>
+        <div className='absolute top-[20px] left-[20px] z-[10] mb-[10px] cursor-pointer' onClick={() => navigate("/")}>
             <IoIosArrowRoundBack size={25} className='text-[#ff4d2d]'  />
         </div>
         <div className='max-w-lg w-full bg-white shadow-xl rounded-2xl p-8 border-orange-100'>
@@ -144,8 +148,9 @@ function EditItem() {
                
           
               <button className='w-full bg-[#ff4d2d] text-white px-6 py-3 rounded-lg
-              font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all'>
-                Save
+              font-semibold shadow-md hover:bg-orange-600 hover:shadow-lg transition-all' disabled={loading}>
+                {loading?<ClipLoader size={20} color='white'/>:"Save"}
+                
               </button>
            </form>
         </div>
