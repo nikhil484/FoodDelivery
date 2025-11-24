@@ -1,39 +1,71 @@
 import { createSlice, current } from "@reduxjs/toolkit";
 
-const userSlice= createSlice({
-    name:"user",
-    initialState:{
-        userData:null,
-        currentCity:null,
-        currentState:null,
-        currentAddress:null,
-        shopInMyCity:null,
-        itemInMyCity:null
+const userSlice = createSlice({
+    name: "user",
+    initialState: {
+        userData: null,
+        currentCity: null,
+        currentState: null,
+        currentAddress: null,
+        shopInMyCity: null,
+        itemInMyCity: null,
+        cartItems: [],
+        totalAmount: 0
     },
-    reducers:{
-        setUserData:(state,action)=>{
-         state.userData= action.payload
+    reducers: {
+        setUserData: (state, action) => {
+            state.userData = action.payload
         },
-        setCurrentCity:(state,action)=>{
-         state.currentCity= action.payload
+        setCurrentCity: (state, action) => {
+            state.currentCity = action.payload
         },
-         setCurrentState:(state,action)=>{
-         state.currentState= action.payload
+        setCurrentState: (state, action) => {
+            state.currentState = action.payload
         },
-         setCurrentAddress:(state,action)=>{
-         state.currentAddress= action.payload
+        setCurrentAddress: (state, action) => {
+            state.currentAddress = action.payload
         },
-         setShopInMyCity:(state,action)=>{
-         state.shopInMyCity= action.payload
+        setShopInMyCity: (state, action) => {
+            state.shopInMyCity = action.payload
         },
-         setItemInMyCity:(state,action)=>{
-         state.itemInMyCity= action.payload
+        setItemInMyCity: (state, action) => {
+            state.itemInMyCity = action.payload
         },
-        
-       
+        addToCart: (state, action) => {
+            const cartItem = action.payload
+            const existingItem = state.cartItems.find(i => i.id == cartItem.id)
+            if (existingItem) {
+                existingItem.quantity += 1
+            } else {
+                state.cartItems.push(cartItem)
+            }
+            state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+        },
+
+        updateQuantity: (state, action) => {
+            const { id, quantity } = action.payload;
+            const item = state.cartItems.find(i => i.id == id);
+            if (item) {
+                if (quantity <= 0) {
+
+                    state.cartItems = state.cartItems.filter(i => i.id != id);
+                } else {
+                    item.quantity = quantity;
+                }
+            }
+            state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+        },
+        removeCartItem: (state, action) => {
+            state.cartItems = state.cartItems.filter(i => i.id !== action.payload)
+            state.totalAmount = state.cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+
+        }
     }
 
 })
 
-export const {setUserData,setCurrentAddress,setCurrentCity,setCurrentState, setShopInMyCity,setItemInMyCity}= userSlice.actions
+export const { setUserData, setCurrentAddress, setCurrentCity
+    , setCurrentState, setShopInMyCity, setItemInMyCity, addToCart,
+    updateQuantity, removeCartItem } = userSlice.actions
 export default userSlice.reducer

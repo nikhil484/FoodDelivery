@@ -12,7 +12,7 @@ import { LuReceiptIndianRupee } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
 
 function Nav() {
-  const { userData, currentCity} = useSelector(state => state.user)
+  const { userData, currentCity,cartItems} = useSelector(state => state.user)
   const { myShopData } = useSelector(state => state.owner)
   const [showInfo, setShowInfo] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
@@ -100,9 +100,9 @@ function Nav() {
         
         </>:(<>
          
-        <div className='relative cursor-pointer'>
-          <FiShoppingCart size={25} className='text-[#ff4d2d]' />
-          <span className='absolute right-[-9px] top-[-12px] text-[#ff4d2d]'> 0</span>
+        <div className='relative cursor-pointer' >
+          <FiShoppingCart size={24} className='text-[#ff4d2d]' onClick={()=>navigate("/cart")}/>
+          <span className='absolute right-[-9px] top-[-12px] text-[#ff4d2d]'>{cartItems.length}</span>
         </div>
 
         <button className='hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10
