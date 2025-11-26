@@ -16,6 +16,7 @@ import EditItem from './pages/EditItem.jsx'
 import useGetShopByCity from './hooks/useGetShopByCity.jsx'
 import useGetItemsByCity from './hooks/useGetItemsByCity.jsx'
 import CartPage from './pages/CartPage.jsx'
+import CheckOut from './pages/CheckOut.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -28,7 +29,7 @@ function App() {
   const location = useLocation()
   const { userData } = useSelector(state => state.user)
 
-  const hideNavOn = ['/create-edit-shop', '/add-item', '/signin', '/signup', '/forgot-password', '/edit-item', '/cart']
+  const hideNavOn = ['/create-edit-shop', '/add-item', '/signin', '/signup', '/forgot-password', '/edit-item', '/cart','/checkout']
 
   const shouldHideNav = hideNavOn.some(p => location.pathname === p || location.pathname.startsWith(p + '/') || location.pathname.startsWith(p))
 
@@ -47,6 +48,7 @@ function App() {
         <Route path='/add-item' element={userData ? <AddItem /> : <Navigate to="/signin" />} />
         <Route path='/edit-item/:itemId' element={userData ? <EditItem /> : <Navigate to="/signin" />} />
         <Route path='/cart' element={userData ? <CartPage /> : <Navigate to="/signin" />} />
+        <Route path='/checkout' element={userData ? <CheckOut /> : <Navigate to="/signin" />} />
 
         <Route path='*' element={<Navigate to={userData ? '/' : '/signin'} replace />} />
       </Routes>
