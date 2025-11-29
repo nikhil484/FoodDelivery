@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose"
+import mongoose from "mongoose"
 const shopOrderItemSchema = new mongoose.Schema({
     item: {
         type: mongoose.Schema.Types.ObjectId,
@@ -9,6 +9,9 @@ const shopOrderItemSchema = new mongoose.Schema({
     },
     qunatity: {
         type: Number
+    },
+    name:{
+        type:String
     }
 }, { timestamps: true })
 
@@ -37,7 +40,7 @@ const orderSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['cod', "online"],
+        enum: ['COD', "Online"],
         required: true
     },
     deliveryAddress: {
@@ -48,7 +51,7 @@ const orderSchema = new mongoose.Schema({
     totalAmount: {
         type: Number
     },
-    shopOrder: [shopOrderSchema]
+    shopOrders: [shopOrderSchema]
 }, { timestamps: true })
 
 
