@@ -2,12 +2,13 @@ import mongoose from "mongoose"
 const shopOrderItemSchema = new mongoose.Schema({
     item: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Item"
+        ref: "Item",
+        required:true
     },
     price: {
         type: Number,
     },
-    qunatity: {
+    quantity: {
         type: Number
     },
     name:{
@@ -28,7 +29,12 @@ const shopOrderSchema = new mongoose.Schema({
     subTotal: {
         type: Number
     },
-    shopOrderItems: [shopOrderItemSchema]
+    shopOrderItems: [shopOrderItemSchema],
+    status:{
+        type:String,
+        enum:["pending","preparing","out for delivery","delivered"],
+        default:"pending"
+    }
 
 }, { timestamps: true })
 
