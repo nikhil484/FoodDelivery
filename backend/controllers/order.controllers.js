@@ -1,3 +1,4 @@
+import Delivery from "../models/delivery.model.js"
 import Order from "../models/order.model.js"
 import Shop from "../models/shop.model.js"
 import User from "../models/user.model.js"
@@ -60,6 +61,9 @@ export const placeOrder = async (req, res) => {
 
 
         })
+
+        await newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
+        await newOrder.populate("shopOrders.shop", "name")
         return res
             .status(201)
             .json(newOrder)
@@ -70,36 +74,129 @@ export const placeOrder = async (req, res) => {
     }
 }
 
-export const getMyOrders=async(req,res)=>{
-try {
-    const user= await User.findById(req.userId)
-    if(user.role=="user"){
-         const orders= await Order.find({user:req.userId})
-    .sort({createdAt:-1})
-    .populate("shopOrders.shop","name")
-    .populate("shopOrders.owner","name email mobileNumber")
-    .populate("shopOrders.shopOrderItems.item","name image price")
+export const getMyOrders = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId)
+        if (user.role == "user") {
+            const orders = await Order.find({ user: req.userId })
+                .sort({ createdAt: -1 })
+                .populate("shopOrders.shop", "name")
+                .populate("shopOrders.owner", "name email mobileNumber")
+                .populate("shopOrders.shopOrderItems.item", "name image price")
 
-    return res
-    .status(200)
-    .json(orders)
-    }else if(user.role=="owner"){
-         const orders= await Order.find({"shopOrders.owner":req.userId})
-    .sort({createdAt:-1})
-    .populate("shopOrders.shop","name")
-    .populate("user")
-    .populate("shopOrders.shopOrderItems.item","name image price ")
+            return res
+                .status(200)
+                .json(orders)
+        } else if (user.role == "owner") {
+            const orders = await Order.find({ "shopOrders.owner": req.userId })
+                .sort({ createdAt: -1 })
+                .populate("shopOrders.shop", "name")
+                .populate("user")
+                .populate("shopOrders.shopOrderItems.item", "name image price ")
 
-    return res
-    .status(200)
-    .json(orders)
+            const filteredOrders = orders.map((order) => ({
+                _id: order._id,
+                paymentMethod: order.paymentMethod,
+                user: order.user,
+                shopOrders: order.shopOrders.find(o => o.owner._id == req.userId),
+                deliveryAddress: order.deliveryAddress,
+                createdAt: order.createdAt
 
-    }
-   
-}catch (error) {
-    return res
+
+            }))
+
+            return res
+                .status(200)
+                .json(filteredOrders)
+
+        }
+
+    } catch (error) {
+        return res
             .status(500)
             .json({ message: `get my orders error ${error}` })
+    }
 }
+
+export const udateOrderStatus = async (req, res) => {
+    try {
+        const { orderId, shopId } = req.params
+        const { status } = req.body
+        const order = await Order.findById(orderId)
+        const shopOrder = order.shopOrders.find(o => o.shop == shopId)
+        if (!shopOrder) {
+            return res
+                .status(400)
+                .json({ message: "shop order not found" })
+        }
+        shopOrder.status = status
+        let deliveryBoysPayload = []
+        if (status == "out for delivery" || !shopOrder.assignment) {
+            const { latitude, longitude } = order.deliveryAddress
+            const nearByDeliveryBoys = await User.find({
+                role: "deliveryBoy",
+                location: {
+                    $near: {
+                        $geometry: { type: "Point", coordinates: [Number(latitude), Number(longitude)] },
+                        $maxDistance: 5000
+                    }
+                }
+            })
+            const nearbyRiderIds = nearByDeliveryBoys.map(b => b._id)
+            const busyRidersIds = await Delivery.find({
+                assignedRider: { $in: nearbyRiderIds },
+                status: { $nin: ["broadcasted", "completed"] }
+            }).distinct("assignedRider")
+
+            const busyRiderGroup = new Set(busyRidersIds.map(id => String(id)))
+            const availableRiders = nearByDeliveryBoys.filter(b => !busyRiderGroup.has(String(b._id)))
+            const availableRidersIds = availableRiders.map(b => b._id)
+            if (availableRidersIds.length == 0) {
+                await order.save()
+                return res
+                    .json({ message: " Order status updated but no delivery riders available right now" })
+            }
+
+            const deliveryTask = await Delivery.create({
+                order: order._id,
+                shop: shopOrder.shop,
+                shopOrderId: shopOrder._id,
+                candidateRiders: availableRidersIds,
+                status: "broadcasted"
+
+            })
+            shopOrder.assignedDeliveryBoy = deliveryTask.assignedRider
+            shopOrder.assignment = deliveryTask._id
+            deliveryBoysPayload = availableRiders.map(b => ({
+                id: b._id,
+                fullName: b.fullName,
+                latitude: b.location.coordinates?.[1],
+                longitude: b.location.coordinates?.[0],
+                mobileNumber: b.mobileNumber
+            }))
+        }
+
+        await order.save()
+        const updatedShopOrder = order.shopOrders.find(o => o.shop == shopId)
+
+        await order.populate("shopOrders.shop", "name")
+        await order.populate("shopOrders.assignedDeliveryBoy", "fullName mobileNumber email")
+
+
+        return res
+            .status(200)
+            .json({
+                shopOrder: updatedShopOrder,
+                assignedDeliveryBoy: updatedShopOrder?.assignedDeliveryBoy,
+                availableRiders: deliveryBoysPayload,
+                assignment: updatedShopOrder?.assignment._id
+
+            })
+
+    } catch (error) {
+        return res
+            .status(500)
+            .json({ message: `Order status error ${error}` })
+    }
 }
 

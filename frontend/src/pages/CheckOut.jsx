@@ -13,6 +13,7 @@ import axios from 'axios'
 import { FaMobileScreenButton } from "react-icons/fa6"
 import { FaCreditCard } from "react-icons/fa6"
 import { serverUrl } from '../App.jsx'
+import { addMyOrder } from '../redux/userSlice.js'
 
 
 function RecenterMap({ location }) {
@@ -86,7 +87,7 @@ function CheckOut() {
                 cartItems
             
             },{withCredentials:true})
-            console.log(result.data)
+            dispatch(addMyOrder(result.data))
             navigate("/order-placed")
         } catch (error) {
             console.log(error)

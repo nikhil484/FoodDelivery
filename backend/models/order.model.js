@@ -34,7 +34,18 @@ const shopOrderSchema = new mongoose.Schema({
         type:String,
         enum:["pending","preparing","out for delivery","delivered"],
         default:"pending"
+    },
+    assignment:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Delivery",
+        default:null
+    },
+    assignedDeliveryBoy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        
     }
+
 
 }, { timestamps: true })
 
@@ -51,8 +62,8 @@ const orderSchema = new mongoose.Schema({
     },
     deliveryAddress: {
         text: String,
-        longitude: Number,
-        latitude: Number
+        latitude: Number,
+        longitude: Number
     },
     totalAmount: {
         type: Number
