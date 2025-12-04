@@ -131,7 +131,7 @@ export const udateOrderStatus = async (req, res) => {
         }
         shopOrder.status = status
         let deliveryBoysPayload = []
-        if (status == "out for delivery" || !shopOrder.assignment) {
+        if (status == "out for delivery" && !shopOrder.assignment) {
             const { latitude, longitude } = order.deliveryAddress
             const nearByDeliveryBoys = await User.find({
                 role: "deliveryBoy",
@@ -197,6 +197,35 @@ export const udateOrderStatus = async (req, res) => {
         return res
             .status(500)
             .json({ message: `Order status error ${error}` })
+    }
+}
+
+export const getDeliveryTask= async(req,res)=>{
+    try {
+        const deliveryBoyId=req.userId
+        const deliveryTask= await Delivery.find({
+            candidateRiders:deliveryBoyId,
+            status:"broadcasted"
+        })
+        .populate("order")
+        .populate("shop")
+        
+        const formated= deliveryTask.map(a=>({
+            deliveryTaskid:a._id,
+            orderId:a.order._id,
+            shopName:a.shop.name,
+            deliveryAddress:a.order.deliveryAddress,
+            items:a.order.shopOrders.find(so=>so._id.equals(a.shopOrderId)).shopOrderItems || [],
+            subTotal:a.order.shopOrders.find(so=>so._id.equals(a.shopOrderId))?.subTotal,
+
+        }))
+        return res
+        .status(200)
+        .json(formated)
+    } catch (error) {
+        return res
+        .status(500)
+        .json({message:`get delivery task error ${error}`})
     }
 }
 
