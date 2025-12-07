@@ -30,7 +30,7 @@ export const updateUserLocation= async(req,res)=>{
         const user= await User.findByIdAndUpdate(req.userId,{
           location:{
             type:'Point',
-            coordinates:[latitude,longitude]
+            coordinates:[longitude,latitude]
           }
         },{new:true})
           if(!user){

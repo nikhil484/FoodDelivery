@@ -138,7 +138,7 @@ export const udateOrderStatus = async (req, res) => {
                 role: "deliveryBoy",
                 location: {
                     $near: {
-                        $geometry: { type: "Point", coordinates: [Number(latitude), Number(longitude)] },
+                        $geometry: { type: "Point", coordinates: [Number(longitude), Number(latitude)] },
                         $maxDistance: 5000
                     }
                 }
@@ -337,5 +337,40 @@ export const getRiderOrders= async(req,res)=>{
         .status(500)
         .json({message:`get rider orders error ${error}`})
         
+    }
+}
+
+export const getOrderById= async(req,res)=>{
+    try {
+        const {orderId}= req.params
+        const order= await Order.findById(orderId)
+        .populate("user")
+        .populate({
+            path:"shopOrders.shop",
+            model:"Shop"
+        })
+        .populate({
+            path:"shopOrders.assignedDeliveryBoy",
+            model:"User"
+        })
+        .populate({
+            path:"shopOrders.shopOrderItems.item",
+            model:"Item"
+        })
+        .lean()
+
+        if(!order){
+            return res
+            .status(400)
+            .json({message:"order not found"})
+        }
+        return res
+        .status(200)
+        .json(order)
+
+    } catch (error) {
+        return res
+        .status(500)
+        .json({message:`get order by id error ${error}`})
     }
 }
