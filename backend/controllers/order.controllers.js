@@ -93,6 +93,7 @@ export const getMyOrders = async (req, res) => {
                 .populate("shopOrders.shop", "name")
                 .populate("user")
                 .populate("shopOrders.shopOrderItems.item", "name image price ")
+                .populate("shopOrders.assignedDeliveryBoy", "fullName mobileNumber ")
 
             const filteredOrders = orders.map((order) => ({
                 _id: order._id,
@@ -229,3 +230,112 @@ export const getDeliveryTask= async(req,res)=>{
     }
 }
 
+ export const acceptDeliveryTask= async(req,res)=>{
+    try {
+        const { deliveryTaskId }= req.params
+        const  deliveryTask= await Delivery.findById(deliveryTaskId)
+        if(!deliveryTask){
+            return res
+            .status(400)
+            .json({message:"delivery task not found"})
+        }
+        if(deliveryTask.status !=="broadcasted"){
+            return res
+            .status(400)
+            .json({message:"delivery task not available"})
+        }
+
+        const alreadyAssigned= await Delivery.findOne({
+            assignedRider:req.userId,
+            status:{$nin:["broadcasted","completed"]}
+        })
+        if(alreadyAssigned){
+            return res
+            .status(400)
+            .json({message:"You have already assigned delivery task"})
+        }
+        deliveryTask.assignedRider=req.userId
+        deliveryTask.status="assigned"
+        deliveryTask.acceptedAt=new Date()
+        await deliveryTask.save()
+
+        const order= await Order.findById(deliveryTask.order)
+        if(!order){
+            return res
+            .status(400)
+            .json({message:"order not found"})
+        }
+        const shopOrder= order.shopOrders.id(deliveryTask.shopOrderId)
+        shopOrder.assignedDeliveryBoy= req.userId
+        await order.save()
+        await order.populate("shopOrders.assignedDeliveryBoy")
+        return res
+        .status(200)
+        .json({message:"Delivery task accepted"})
+    } catch (error) {
+        return res
+        .status(500)
+        .json({message:`accept delivery task error ${error}`})
+    }
+}
+
+export const getRiderOrders= async(req,res)=>{
+    try {
+        const assignedOrders= await Delivery.findOne({
+             assignedRider:req.userId,
+                status:"assigned"
+        })
+        .populate("shop","name")
+        .populate("assignedRider","fullName mobileNumber email location ")
+        .populate({
+            path:"order",
+            populate:[{path:"user", select:"fullName mobileNumber email location"
+}]
+
+        })
+        if(!assignedOrders){
+            return res
+            .status(400)
+            .json({message:"no assigned orders found"})
+        }
+        if(!assignedOrders.order){
+            return res
+            .status(400)
+            .json({message:"no assigned orders found"})
+        }
+        const  shopOrder= assignedOrders.order.shopOrders.find(so=>String(so._id)===String(assignedOrders.shopOrderId))
+       if(!shopOrder){
+        return res
+        .status(400)
+        .json({message:"no shop order found"})
+       }
+    
+        let  deliveryBoyLocation={latitude:null,longitude:null} 
+        if(assignedOrders.assignedRider.location.coordinates.length==2){
+              deliveryBoyLocation.latitude= assignedOrders.assignedRider.location.coordinates?.[1]
+            deliveryBoyLocation.longitude= assignedOrders.assignedRider.location.coordinates?.[0]
+        }
+          
+        let customerLocation= {latitude:null,longitude:null} 
+        if(assignedOrders.order.deliveryAddress.latitude && assignedOrders.order.deliveryAddress.longitude){
+            customerLocation.latitude= assignedOrders.order.deliveryAddress.latitude
+            customerLocation.longitude= assignedOrders.order.deliveryAddress.longitude
+        }
+            return res
+            .status(200)
+            .json({
+                deliveryTaskId:assignedOrders._id,
+                shopOrder,
+                user:assignedOrders.order.user,
+                deliveryAddress:assignedOrders.order.deliveryAddress,
+                deliveryBoyLocation,
+                customerLocation
+            })
+
+    } catch (error) {
+        return res
+        .status(500)
+        .json({message:`get rider orders error ${error}`})
+        
+    }
+}
