@@ -45,7 +45,7 @@ function TrackOrderPage() {
                     </div>:<p>Delivery Boy is not assigned yet</p>}
 
                     </>:<p className='text-green-600 font-semibold text-lg'>Delivered</p>}
-                 {shopOrder.assignedDeliveryBoy &&
+                 {(shopOrder.assignedDeliveryBoy && shopOrder.status!=="delivered") &&
                  <div className='h-[400px] w-full rounded-2xl overflow-hidden shadow-md'>
                  <DeliveryBoyTrackinig data={{
                     deliveryBoyLocation:{latitude:shopOrder.assignedDeliveryBoy.location.coordinates[1],

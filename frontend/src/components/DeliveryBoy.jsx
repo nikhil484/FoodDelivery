@@ -10,6 +10,7 @@ function DeliveryBoy() {
   const[deliverytask,setDeliverytask]=useState()
   const[riderOrder,setRiderOrder]=useState()
   const[showOtpBox,setShowOtpBox]=useState(false)
+  const[otp,setOtp]=useState("")
   const getDeliveryTask=async()=>{
     try {
       const result = await axios.get(`${serverUrl}/api/order/get-deliverytask`,{withCredentials:true})
@@ -30,9 +31,9 @@ function DeliveryBoy() {
     }
   }
 
- const  handleSendOtp = (e)=>{
-    setShowOtpBox(true)
- }
+ 
+ 
+
   const acceptOrder= async(deliveryTaskId)=>{
     try {
       const result = await axios.get(`${serverUrl}/api/order/accept-DeliveryTask/${deliveryTaskId}`,{withCredentials:true})
@@ -40,6 +41,29 @@ function DeliveryBoy() {
       await getRiderOrders()
     } catch (error) {
       console.log("accept delivery task error:",error)
+    }
+  }
+
+  const sendOtp= async()=>{
+    try {
+      const result = await axios.post(`${serverUrl}/api/order/send-delivery-otp`,
+        { orderId: riderOrder.orderId, shopOrderId:riderOrder.shopOrder._id},{withCredentials:true})
+      console.log(result.data)
+      setShowOtpBox(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const verifyOtp= async()=>{
+
+    try {
+      const result = await axios.post(`${serverUrl}/api/order/verify-delivery-otp`,
+        { orderId: riderOrder.orderId, shopOrderId:riderOrder.shopOrder._id,otp},{withCredentials:true})
+          
+      console.log(result.data)
+      
+    } catch (error) {
+      console.log(error)
     }
   }
   useEffect(()=>{
@@ -89,12 +113,12 @@ function DeliveryBoy() {
             </div>
           <DeliveryBoyTrackinig data={riderOrder}/>
           {!showOtpBox ? <button className='mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl 
-          shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200' onClick={handleSendOtp}>
+          shadow-md hover:bg-green-600 active:scale-95 transition-all duration-200' onClick={sendOtp}>
             Mark as Delivered
           </button> :<div className='t-4 p-4 border rounded-xl bg-gray-50'> 
           <p className='text-sm font-semibold mb-2'>Enter Otp sent to <span className='text-orange-500'>{riderOrder.user.fullName}</span> </p>
-          <input type='text' className='w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400' placeholder='Enter Otp'/>
-          <button className='w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all'>Submit Otp</button>
+          <input type='text' className='w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400' placeholder='Enter Otp' onChange={(e)=>setOtp(e.target.value)} value={otp}/>
+          <button className='w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all' onClick={verifyOtp}>Submit Otp</button>
           </div> }
           
           </div>}
