@@ -22,6 +22,7 @@ import MyOrders from './pages/MyOrders.jsx'
 import useGetMyOrders from './hooks/useGetMyOrders.jsx'
 import useUpdateLocation from './hooks/useUpdateLocation.jsx'
 import TrackOrderPage from './pages/TrackOrderPage.jsx'
+import Shop from './pages/Shop.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -36,7 +37,7 @@ function App() {
   const location = useLocation()
   const { userData } = useSelector(state => state.user)
 
-  const hideNavOn = ['/create-edit-shop', '/add-item', '/signin', '/signup', '/forgot-password', '/edit-item', '/cart','/checkout','/order-placed','/my-orders','/track-order']
+  const hideNavOn = ['/create-edit-shop', '/add-item', '/signin', '/signup', '/forgot-password', '/edit-item', '/cart','/checkout','/order-placed','/my-orders','/track-order','/shop']
 
   const shouldHideNav = hideNavOn.some(p => location.pathname === p || location.pathname.startsWith(p + '/') || location.pathname.startsWith(p))
 
@@ -59,6 +60,7 @@ function App() {
         <Route path='/order-placed' element={userData ? <OrderPlaced /> : <Navigate to="/signin" />} />
         <Route path='/my-orders' element={userData ? <MyOrders /> : <Navigate to="/signin" />} />
         <Route path='/track-order/:orderId' element={userData ? <TrackOrderPage/>: <Navigate to="/signin" />} />
+        <Route path='/shop/:shopId' element={userData ? <Shop/>: <Navigate to="/signin" />} />
 
 
         <Route path='*' element={<Navigate to={userData ? '/' : '/signin'} replace />} />

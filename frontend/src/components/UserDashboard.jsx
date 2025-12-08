@@ -6,10 +6,28 @@ import { FaCircleChevronLeft } from "react-icons/fa6";
 import { FaCircleChevronRight } from "react-icons/fa6"
 import { useSelector } from 'react-redux';
 import FoodCard from './FoodCard.jsx';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 function UserDashboard() {
   const {currentCity,shopInMyCity,itemInMyCity}=useSelector(state=>state.user)
   const cateScrollRef= useRef()
   const shopScrollRef= useRef()
+  const navigate=useNavigate()
+  const[updatedItemList,setupdatedItemList]=useState([])
+
+  const handleFilterByCategory=(category)=>{
+ if(category=="All"){
+  setupdatedItemList(itemInMyCity)
+ }else{
+  const filteredList= itemInMyCity?.filter(i=>i.category===category)
+  setupdatedItemList(filteredList)
+ }
+  }
+
+  useEffect(()=>{
+     setupdatedItemList(itemInMyCity)
+  },[itemInMyCity])
+
 const scrollHandler=(ref,direction)=>{
   if(ref.current){
     ref.current.scrollBy({
@@ -32,7 +50,8 @@ const scrollHandler=(ref,direction)=>{
           </button>
           <div className='w-full flex overflow-x-auto gap-4 pb-2 'ref={cateScrollRef}>
           {categories.map((cate,index)=>(
-            <CategoryCard name={cate.category} image={cate.image}  key={index}/>
+            <CategoryCard name={cate.category} image={cate.image}  key={index}
+            onClick={()=>handleFilterByCategory(cate.category)}/>
           ))}
          </div>
          <button className='absolute right-0 top-1/2 -translate-y-1/2 bg-[#ff4d2d] text-white p-2 rounded-full shadow-lg hover:bg-[#e64528] z-10'
@@ -50,7 +69,8 @@ const scrollHandler=(ref,direction)=>{
           </button>
           <div className='w-full flex overflow-x-auto gap-4 pb-2 'ref={shopScrollRef}>
           {shopInMyCity?.map((shop,index)=>(
-            <CategoryCard name={shop.name} image={shop.image} key={index}/>
+            <CategoryCard name={shop.name} image={shop.image} key={index} 
+            onClick={()=>navigate(`/shop/${shop._id}`)}/>
           ))}
          </div>
          <button className='absolute right-0 top-1/2 -translate-y-1/2 bg-[#ff4d2d] text-white p-2 rounded-full shadow-lg hover:bg-[#e64528] z-10'
@@ -64,7 +84,7 @@ const scrollHandler=(ref,direction)=>{
          Suggested Food Items
         </h1>
         <div className='w-full h-auto flex flex-wrap gap-[20px] justify-center'>
-          {itemInMyCity?.map((item,index)=>
+          {updatedItemList?.map((item,index)=>
           <FoodCard key={index} data={item}/>
           )}
         </div>

@@ -32,7 +32,7 @@ function EditItem() {
             "North Indian",
             "Chinese",
             "Fast Food",
-            "Others"]
+            "All"]
    
    const dispatch= useDispatch()
    const handleImage=(e)=>{

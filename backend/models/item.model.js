@@ -26,7 +26,7 @@ const itemSchema= new mongoose.Schema({
             "North Indian",
             "Chinese",
             "Fast Food",
-            "Others"
+            "All"
 
         ],
         required:true
