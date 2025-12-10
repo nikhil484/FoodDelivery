@@ -1,19 +1,17 @@
 import User from "./models/user.model.js";
 
-export const socketHandler = (io) => {
+export const socketHandler = async (io) => {
   io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
-
     socket.on("identity", async ({ userId }) => {
       try {
-        await User.findByIdAndUpdate(
-          userId,
-          { socketId: socket.id },
+        const user = await User.findByIdAndUpdate(
+          userId, {socketId: socket.id ,isOnline:true},
           { new: true }
         );
-      } catch (err) {
-        console.log("Socket Identity Error:", err);
+      } catch (error) {
+        console.log(error);
       }
     });
   });
 };
+
