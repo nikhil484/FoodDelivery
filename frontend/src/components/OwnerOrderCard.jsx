@@ -25,6 +25,8 @@ function OwnerOrderCard({ data }) {
                 <h2 className='text-lg font-semibold text-gray-800'>{data.user.fullName}</h2>
                 <p className='text-sm text-gray-500'>{data.user.email}</p>
                 <p className='flex items-center gap-2 text-sm text-gray-600 mt-1'><MdPhone /><span>{data.user.mobileNumber}</span></p>
+                {data.paymentMethod=="Online"?<p className='gap-2 text-sm text-gray-600'>Payment: {data.payment?"successful":"failed"}</p>:<p className='gap-2 text-sm text-gray-600'>Payment Methd:{data.paymentMethod}</p>}
+                
             </div>
 
             <div className='flex items-start flex-col gap-2 text-gray-600 text-sm'>

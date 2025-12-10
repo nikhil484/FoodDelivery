@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import SignUp from './pages/SignUp.jsx'
 import SignIn from './pages/SignIn.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import useGetCurrentUser from './hooks/useGetCurrentUser.jsx'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Nav from './components/Nav.jsx'
 import useGetCity from './hooks/useGetCity.jsx'
 import useGetMyShop from './hooks/useGetMyShop.jsx'
@@ -23,6 +23,8 @@ import useGetMyOrders from './hooks/useGetMyOrders.jsx'
 import useUpdateLocation from './hooks/useUpdateLocation.jsx'
 import TrackOrderPage from './pages/TrackOrderPage.jsx'
 import Shop from './pages/Shop.jsx'
+import { io } from 'socket.io-client'
+import { setSocket } from './redux/userSlice.js'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -34,12 +36,24 @@ function App() {
   useGetItemsByCity()
   useGetMyOrders()
   useUpdateLocation()
+  useEffect(()=>{
+  const socketInstance= io(serverUrl,{withCredentials:true})
+  dispatch(setSocket(socketInstance))
+  socketInstance.on('connect',()=>{
+   if(userData){
+    socketInstance.emit('identity',{userId:userData._id})
+   }
+  })
+  },[])
+
   const location = useLocation()
+  const dispatch=useDispatch()
   const { userData } = useSelector(state => state.user)
 
   const hideNavOn = ['/create-edit-shop', '/add-item', '/signin', '/signup', '/forgot-password', '/edit-item', '/cart','/checkout','/order-placed','/my-orders','/track-order','/shop']
 
   const shouldHideNav = hideNavOn.some(p => location.pathname === p || location.pathname.startsWith(p + '/') || location.pathname.startsWith(p))
+
 
   return (
     <>
