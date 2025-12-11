@@ -97,6 +97,29 @@ export const placeOrder = async (req, res) => {
 
         await newOrder.populate("shopOrders.shopOrderItems.item", "name image price")
         await newOrder.populate("shopOrders.shop", "name")
+        await newOrder.populate("shopOrders.owner", "name socketId")
+        await newOrder.populate("user", "name email mobile")
+
+        const io=req.app.get('io')
+         if (io) {
+            newOrder.shopOrders.forEach(shopOrder => {
+                const ownerSocketId = shopOrder.owner.socketId
+                if (ownerSocketId) {
+                    io.to(ownerSocketId).emit('newOrder', {
+                        _id: newOrder._id,
+                        paymentMethod: newOrder.paymentMethod,
+                        user: newOrder.user,
+                        shopOrders: shopOrder,
+                        createdAt: newOrder.createdAt,
+                        deliveryAddress: newOrder.deliveryAddress,
+                        payment: newOrder.payment
+                    })
+                }
+            });
+        }
+         
+
+        
         return res
             .status(201)
             .json(newOrder)
@@ -125,9 +148,29 @@ export const placeOrder = async (req, res) => {
             order.payment=true
             order.razorpayPaymentId=razorpay_payment_id
             await order.save()
-            
-        await order.populate("shopOrders.shopOrderItems.item", "name image price")
-        await  order.populate("shopOrders.shop", "name")
+         
+          await order.populate("shopOrders.shopOrderItems.item", "name image price")
+        await order.populate("shopOrders.shop", "name")
+        await order.populate("shopOrders.owner", "name socketId")
+        await order.populate("user", "name email mobile")
+
+        const io=req.app.get('io')
+         if (io) {
+        order.shopOrders.forEach(shopOrder => {
+                const ownerSocketId = shopOrder.owner.socketId
+                if (ownerSocketId) {
+                    io.to(ownerSocketId).emit('newOrder', {
+                        _id:order._id,
+                        paymentMethod:order.paymentMethod,
+                        user:order.user,
+                        shopOrders: shopOrder,
+                        createdAt:order.createdAt,
+                        deliveryAddress:order.deliveryAddress,
+                        payment:order.payment
+                    })
+                }
+            })
+        }
             return res
             .status(200)
             .json(order)
@@ -184,7 +227,7 @@ export const getMyOrders = async (req, res) => {
     }
 }
 
-export const udateOrderStatus = async (req, res) => {
+export const updateOrderStatus = async (req, res) => {
     try {
         const { orderId, shopId } = req.params
         const { status } = req.body
@@ -247,7 +290,20 @@ export const udateOrderStatus = async (req, res) => {
 
         await order.populate("shopOrders.shop", "name")
         await order.populate("shopOrders.assignedDeliveryBoy", "fullName mobileNumber email")
+        await order.populate("user", "socketId")
 
+        const io = req.app.get('io')
+        if (io) {
+            const userSocketId = order.user.socketId
+            if (userSocketId) {
+                io.to(userSocketId).emit('update-status', {
+                    orderId: order._id,
+                    shopId: updatedShopOrder.shop._id,
+                    status: updatedShopOrder.status,
+                    userId: order.user._id
+                })
+            }
+        }
 
         return res
             .status(200)

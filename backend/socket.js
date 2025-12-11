@@ -11,7 +11,19 @@ export const socketHandler = async (io) => {
       } catch (error) {
         console.log(error);
       }
-    });
+    })
+    socket.on('disconnect',async()=>{
+        try {
+            await User.findByIdAndUpdate({socketId:socket.id},
+                {
+                    socketId:null,
+                    isOnline:false
+                }
+            )
+        } catch (error) {
+            console.log(error)
+        }
+    })
   });
 };
 

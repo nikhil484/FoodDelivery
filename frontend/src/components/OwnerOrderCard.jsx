@@ -14,7 +14,7 @@ function OwnerOrderCard({ data }) {
         const result= await axios.post(`${serverUrl}/api/order/update-status/${orderId}/${shopId}`,{status},{withCredentials:true})
        dispatch(updateOrderStatus({orderId,shopId,status}))
        setAvailableRiders(result.data.availableRiders)
-         console.log("status updated",result.data)
+         //console.log("status updated",result.data)
     } catch (error) {
         console.log(error)
     }
