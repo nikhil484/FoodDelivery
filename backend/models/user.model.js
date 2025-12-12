@@ -44,16 +44,9 @@ const userSchema= new mongoose.Schema({
     location:{
         type:{type:String,enum:["Point"],default:"Point"},
         coordinates:{type:[Number],default:[0,0]}
-    },
-    isOnline:{
-        type:Boolean,
-        default:false
-    },
-    socketId:{
-     type:String,
-     
     }
-
+   
+    
 },{timestamps:true}) 
 
 userSchema.index({location:"2dsphere"})

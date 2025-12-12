@@ -13,6 +13,5 @@ orderRouter.get("/get-deliverytask",isAuth,getDeliveryTask)
 orderRouter.get("/accept-DeliveryTask/:deliveryTaskId",isAuth,acceptDeliveryTask)
 orderRouter.get("/get-riderOrders",isAuth,getRiderOrders)
 orderRouter.get("/get-order-by-id/:orderId",isAuth,getOrderById)
-
 orderRouter.post("/update-status/:orderId/:shopId",isAuth,updateOrderStatus)
 export default orderRouter

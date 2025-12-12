@@ -23,13 +23,11 @@ import useGetMyOrders from './hooks/useGetMyOrders.jsx';
 import useUpdateLocation from './hooks/useUpdateLocation.jsx';
 import TrackOrderPage from './pages/TrackOrderPage.jsx';
 import Shop from './pages/Shop.jsx';
-import { io } from 'socket.io-client';
-import { setSocket } from './redux/userSlice.js';
 
 export const serverUrl = "http://localhost:8000";
 
 function App() {
-
+const { userData } = useSelector(state => state.user)
   useGetCurrentUser();
   useGetCity();
   useGetMyShop();
@@ -39,22 +37,8 @@ function App() {
   useUpdateLocation();
 
   const location = useLocation();
-  const dispatch = useDispatch();
-  const { userData } = useSelector(state => state.user);
 
-  useEffect(() => {
-    const socketInstance = io(serverUrl, { withCredentials: true });
-    dispatch(setSocket(socketInstance));
-
-    socketInstance.on('connect', () => {
-      if (userData) {
-        socketInstance.emit('identity', { userId: userData._id });
-      }
-    })
-    return()=>{
-      socketInstance.disconnect()
-    }
-  }, [userData?._id]);
+  
 
   const hideNavOn = [
     '/create-edit-shop',
