@@ -58,24 +58,49 @@ function DeliveryBoy() {
       console.log(error)
     }
   }
+
+  // const verifyOtp = async () => {
+
+  //   try {
+  //     const result = await axios.post(`${serverUrl}/api/order/verify-delivery-otp`,
+  //       { orderId: riderOrder.orderId, shopOrderId: riderOrder.shopOrder._id, otp }, { withCredentials: true })
+
+  //     console.log(result.data)
+
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
+
   const verifyOtp = async () => {
+  try {
+    const result = await axios.post(
+      `${serverUrl}/api/order/verify-delivery-otp`,
+      { 
+        orderId: riderOrder.orderId,
+        shopOrderId: riderOrder.shopOrder._id,
+        otp 
+      },
+      { withCredentials: true }
+    );
 
-    try {
-      const result = await axios.post(`${serverUrl}/api/order/verify-delivery-otp`,
-        { orderId: riderOrder.orderId, shopOrderId: riderOrder.shopOrder._id, otp }, { withCredentials: true })
+    console.log("Delivery Completed:", result.data);
 
-      console.log(result.data)
+  
+    setRiderOrder(null);
+    setShowOtpBox(false);
+    setOtp("");
+    await getDeliveryTask();
+    alert("Delivery Completed!");
 
-    } catch (error) {
-      console.log(error)
-    }
+  } catch (error) {
+    console.log(error);
   }
-
+};
 
   useEffect(() => {
     getDeliveryTask()
     getRiderOrders()
-
 
   }, [userData])
   return (
@@ -103,7 +128,8 @@ function DeliveryBoy() {
                       <p className='text-sm text-gray-500'><span className='font-semibold'>Delivery Address :</span> {a?.deliveryAddress.text}</p>
                       <p className='text-xs text-gray-400'>{a.items.length} items | {a.subTotal}</p>
                     </div>
-                    <button className='bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600' onClick={() => acceptOrder(a.deliveryTaskid)}>Accept </button>
+                    <button className='bg-orange-500 text-white px-4 py-1 rounded-lg text-sm hover:bg-orange-600'
+                     onClick={() => acceptOrder(a.deliveryTaskid)}>Accept </button>
                   </div>
                 ))) : (<p className='text-gray-400'>No Available Orders</p>)}
             </div>

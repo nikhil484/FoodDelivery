@@ -100,7 +100,7 @@ export const placeOrder = async (req, res) => {
         await newOrder.populate("shopOrders.shop", "name")
         await newOrder.populate("shopOrders.owner", "name")
 
-        return res
+       return res
             .status(201)
             .json(newOrder)
     } catch (error) {
@@ -243,8 +243,7 @@ export const updateOrderStatus = async (req, res) => {
                 latitude: b.location.coordinates?.[1],
                 longitude: b.location.coordinates?.[0],
                 mobileNumber: b.mobileNumber
-            }))
-        }
+            }))        }
 
         await order.save()
         const updatedShopOrder = order.shopOrders.find(o => o.shop == shopId)
@@ -352,8 +351,9 @@ export const getRiderOrders = async (req, res) => {
     try {
         const assignedOrders = await Delivery.findOne({
             assignedRider: req.userId,
-            status: "assigned"
-        })
+            status: "assigned",         
+        }
+    )
             .populate("shop", "name")
             .populate("assignedRider", "fullName mobileNumber email location ")
             .populate({
