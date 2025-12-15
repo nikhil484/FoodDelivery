@@ -22,13 +22,24 @@ const port = process.env.PORT || 5000;
      credentials: true
    })
  )*/
+// app.use(cors({
+//   origin: [
+//     "http://localhost:5173",
+//     "vingo-tau.vercel.app",
+//     "vingo-b0boel12r-nikhils-projects-6fc1c708.vercel.app"
+//   ],
+//   credentials: true
+// }));
+
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "vingo-tau.vercel.app",
-    "vingo-b0boel12r-nikhils-projects-6fc1c708.vercel.app"
+    "https://vingo-tau.vercel.app",  // ✅ Added https://
+    "https://vingo-b0boel12r-nikhils-projects-6fc1c708.vercel.app"  // ✅ Added https://
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
