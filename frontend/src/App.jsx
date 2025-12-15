@@ -24,7 +24,8 @@ import useUpdateLocation from './hooks/useUpdateLocation.jsx';
 import TrackOrderPage from './pages/TrackOrderPage.jsx';
 import Shop from './pages/Shop.jsx';
 
-export const serverUrl = "http://localhost:8000";
+//export const serverUrl = "http://localhost:8000";
+export const serverUrl = import.meta.env.VITE_SERVER_URL
 
 function App() {
 const { userData } = useSelector(state => state.user)
