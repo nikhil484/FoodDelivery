@@ -23,7 +23,7 @@ const port = process.env.PORT || 5000;
 //   })
 // )
 app.use(cors({
-  origin: "https://YOUR_FRONTEND.vercel.app",
+  origin: "vingo-jzaa5cfs0-nikhils-projects-6fc1c708.vercel.app",
   credentials: true
 }));
 
