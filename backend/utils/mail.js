@@ -22,7 +22,7 @@ export const sendOtpMail= async(to,otp)=>{
 
     }) 
 }
-export const sendDeliveryOtpMail= async(user,otp)=>{
+export const sendDeliveryOtpMail= async(email,otp)=>{
     await transporter.sendMail({
         from:process.env.EMAIL,
         to:email,
