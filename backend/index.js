@@ -12,13 +12,12 @@ import itemRouter from "./routes/items.route.js";
 import orderRouter from "./routes/order.routes.js";
 
 
-//"http://localhost:5173"
-
 const app = express();
 const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin:"https://vingo-tau.vercel.app",
+    //origin:"http://localhost:5173",
     credentials: true
   })
 )
