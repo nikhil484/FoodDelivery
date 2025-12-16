@@ -51,7 +51,7 @@ function DeliveryBoy() {
   const sendOtp = async () => {
     try {
       const result = await axios.post(`${serverUrl}/api/order/send-delivery-otp`,
-        { orderId: riderOrder.orderId, shopOrderId: riderOrder.shopOrder._id }, { withCredentials: true })
+        { orderId: riderOrder.orderId, shopOrderId: riderOrder.shopOrderId}, { withCredentials: true })
       console.log(result.data)
       setShowOtpBox(true)
     } catch (error) {
@@ -78,7 +78,7 @@ function DeliveryBoy() {
       `${serverUrl}/api/order/verify-delivery-otp`,
       { 
         orderId: riderOrder.orderId,
-        shopOrderId: riderOrder.shopOrder._id,
+        shopOrderId: riderOrder.shopOrderId,
         otp 
       },
       { withCredentials: true }
