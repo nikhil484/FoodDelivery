@@ -1,56 +1,154 @@
-import nodemailer from "nodemailer"
-import dotenv from "dotenv"
-dotenv.config()
+import axios from "axios";
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_LOGIN, 
-    pass: process.env.BREVO_SMTP_KEY 
-  }
+const brevoClient = axios.create({
+  baseURL: "https://api.brevo.com/v3",
+  headers: {
+    "Content-Type": "application/json",
+    "api-key": process.env.BREVO_API_KEY,
+  },
+  timeout: 10000, // 10s safety timeout
 });
 
+
 export const sendOtpMail = async (to, otp) => {
-    try {
-        await transporter.sendMail({
-            //from: '"Vingo" <vingo6731@gmail.com>', 
-            from: `"Vingo" <${process.env.BREVO_LOGIN}>`,
-            to,
-            subject: "Reset your Vingo Password",
-            html: `<p>Your OTP for password reset is <b>${otp}</b>. It expires in 5 minutes.</p>`
-        });
-        console.log("✅ Password reset email sent to:", to);
-    } catch (error) {
-        console.error("❌ Email error:", error);
-        throw error;
-    }
-}
+  try {
+    await brevoClient.post("/smtp/email", {
+      sender: {
+        name: "Vingo",
+        email: "no-reply@vingo.com",
+      },
+      to: [{ email: to }],
+      subject: "Reset your Vingo password",
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Your OTP is:</p>
+          <h2>${otp}</h2>
+          <p>This OTP expires in 5 minutes.</p>
+        </div>
+      `,
+    });
+
+    console.log("✅ Password reset OTP sent to:", to);
+  } catch (error) {
+    console.error(
+      "❌ Brevo sendOtpMail error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 
 export const sendDeliveryOtpMail = async (user, otp) => {
-    try {
-        await transporter.sendMail({
-           // from: '"Vingo Delivery" <vingo6731@gmail.com>',
-           from: `"Vingo" <${process.env.BREVO_LOGIN}>` ,
-           to: user.email,
-            subject: "Delivery OTP - Vingo",
-            html: `
-                <div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2>Delivery Confirmation</h2>
-                    <p>Hello ${user.fullName},</p>
-                    <p>Your delivery OTP is: <strong style="font-size: 24px; color: #ff4d2d;">${otp}</strong></p>
-                    <p>This OTP expires in 5 minutes.</p>
-                    <p>Share this with your delivery person to confirm delivery.</p>
-                </div>
-            `
-        });
-        console.log("✅ Delivery OTP email sent to:", user.email);
-    } catch (error) {
-        console.error("❌ Email error:", error);
-        throw error;
-    }
-}
+  try {
+    await brevoClient.post("/smtp/email", {
+      sender: {
+        name: "Vingo Delivery",
+        email: "no-reply@vingo.com",
+      },
+      to: [
+        {
+          email: user.email,
+          name: user.fullName || "Customer",
+        },
+      ],
+      subject: "Delivery OTP - Vingo",
+      htmlContent: `
+        <div style="font-family: Arial, sans-serif;">
+          <h2>Delivery Confirmation</h2>
+          <p>Hello ${user.fullName || "Customer"},</p>
+          <p>Your delivery OTP is:</p>
+          <h1 style="color:#ff4d2d;">${otp}</h1>
+          <p>This OTP expires in 5 minutes.</p>
+        </div>
+      `,
+    });
+
+    console.log("✅ Delivery OTP sent to:", user.email);
+  } catch (error) {
+    console.error(
+      "❌ Brevo sendDeliveryOtpMail error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import nodemailer from "nodemailer"
+// import dotenv from "dotenv"
+// dotenv.config()
+
+// const transporter = nodemailer.createTransport({
+//   host: 'smtp-relay.brevo.com',
+//   port: 587,
+//   secure: false,
+//   auth: {
+//     user: process.env.BREVO_LOGIN, 
+//     pass: process.env.BREVO_SMTP_KEY 
+//   }
+// });
+
+// export const sendOtpMail = async (to, otp) => {
+//     try {
+//         await transporter.sendMail({
+//             //from: '"Vingo" <vingo6731@gmail.com>', 
+//             from: `"Vingo" <${process.env.BREVO_LOGIN}>`,
+//             to,
+//             subject: "Reset your Vingo Password",
+//             html: `<p>Your OTP for password reset is <b>${otp}</b>. It expires in 5 minutes.</p>`
+//         });
+//         console.log("✅ Password reset email sent to:", to);
+//     } catch (error) {
+//         console.error("❌ Email error:", error);
+//         throw error;
+//     }
+// }
+
+// export const sendDeliveryOtpMail = async (user, otp) => {
+//     try {
+//         await transporter.sendMail({
+//            // from: '"Vingo Delivery" <vingo6731@gmail.com>',
+//            from: `"Vingo" <${process.env.BREVO_LOGIN}>` ,
+//            to: user.email,
+//             subject: "Delivery OTP - Vingo",
+//             html: `
+//                 <div style="font-family: Arial, sans-serif; padding: 20px;">
+//                     <h2>Delivery Confirmation</h2>
+//                     <p>Hello ${user.fullName},</p>
+//                     <p>Your delivery OTP is: <strong style="font-size: 24px; color: #ff4d2d;">${otp}</strong></p>
+//                     <p>This OTP expires in 5 minutes.</p>
+//                     <p>Share this with your delivery person to confirm delivery.</p>
+//                 </div>
+//             `
+//         });
+//         console.log("✅ Delivery OTP email sent to:", user.email);
+//     } catch (error) {
+//         console.error("❌ Email error:", error);
+//         throw error;
+//     }
+// }
 
 
 
