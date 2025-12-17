@@ -15,7 +15,8 @@ const transporter = nodemailer.createTransport({
 export const sendOtpMail = async (to, otp) => {
     try {
         await transporter.sendMail({
-            from: '"Vingo" <vingo6731@gmail.com>', 
+            //from: '"Vingo" <vingo6731@gmail.com>', 
+            from: `"Vingo" <${process.env.BREVO_LOGIN}>`,
             to,
             subject: "Reset your Vingo Password",
             html: `<p>Your OTP for password reset is <b>${otp}</b>. It expires in 5 minutes.</p>`
@@ -30,8 +31,9 @@ export const sendOtpMail = async (to, otp) => {
 export const sendDeliveryOtpMail = async (user, otp) => {
     try {
         await transporter.sendMail({
-            from: '"Vingo Delivery" <vingo6731@gmail.com>',
-            to: user.email,
+           // from: '"Vingo Delivery" <vingo6731@gmail.com>',
+           from: `"Vingo" <${process.env.BREVO_LOGIN}>` ,
+           to: user.email,
             subject: "Delivery OTP - Vingo",
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px;">
