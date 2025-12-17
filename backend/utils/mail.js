@@ -15,7 +15,7 @@ export const sendOtpMail = async (to, otp) => {
     await brevoClient.post("/smtp/email", {
       sender: {
         name: "Vingo",
-        email: "no-reply@vingo.com",
+        email: "vingo6731@gmail.com",
       },
       to: [{ email: to }],
       subject: "Reset your Vingo password",
@@ -44,7 +44,7 @@ export const sendDeliveryOtpMail = async (user, otp) => {
     await brevoClient.post("/smtp/email", {
       sender: {
         name: "Vingo Delivery",
-        email: "no-reply@vingo.com",
+        email: "vingo6731@gmail.com",
       },
       to: [
         {
